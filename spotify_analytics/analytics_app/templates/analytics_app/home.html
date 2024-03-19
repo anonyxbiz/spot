@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Analytics</title>
+    <style>
+        body {
+            background-color: #333;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            width: 100%;
+            padding: 20px;
+            background-color: #444;
+            border-radius: 8px;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="email"],
+        input[type="submit"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin: 5px 0;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff;
+            color: #333;
+        }
+
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
+        .response {
+            margin-top: 20px;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('form').submit(function (e) {
+                e.preventDefault(); // Prevent form submission
+                var formData = $(this).serialize(); // Serialize form data
+                var submitButton = $(this).find('input[type="submit"]');
+                submitButton.prop('disabled', true); // Disable submit button
+                $.ajax({
+                    type: 'POST',
+                    url: $(this).attr('action'),
+                    data: formData,
+                    success: function (response) {
+                        $('.container').html(response); // Update container with response HTML
+                        submitButton.prop('disabled', false); // Re-enable submit button after response
+                    },
+                    error: function () {
+                        submitButton.prop('disabled', false); // Re-enable submit button if there's an error
+                    }
+                });
+            });
+        });
+    </script>
+
+</head>
+
+<body>
+    <h1>Spotify Analytics</h1>
+    <div class="container">
+        <form method="post">
+            {% csrf_token %}
+            <label for="song_url">Enter Spotify Album URL:</label><br>
+            <input type="text" id="song_url" name="song_url"><br>
+            <input type="submit" value="Submit">
+        </form>
+
+        {% if error_message %}
+        <p>{{ error_message }}</p>
+        {% endif %}
+
+        {% if total_album_streams and release_name %}
+        <h2>{{ release_name }} Total Streams: {{ total_album_streams }}</h2>
+        {% endif %}
+
+        {% if streams %}
+        {% if streams|length %}
+        <h2>Analytics</h2>
+        <ul>
+            {% for track in streams %}
+            <li>
+                Track: {{ track.track_name }} | Artist: {{ track.primary_artist }} | Streams: {{ track.streams_formatted }}
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <h2>Single Track Streams: {{ streams }}</h2>
+        {% endif %}
+        {% endif %}
+    </div>
+</body>
+
+</html>
