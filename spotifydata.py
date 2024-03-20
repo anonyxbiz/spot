@@ -5,7 +5,7 @@ from os import system as sy
 from argparse import ArgumentParser
 
 p = print
-sy('cls')
+sy('clear')
 
 s = Session()
 
